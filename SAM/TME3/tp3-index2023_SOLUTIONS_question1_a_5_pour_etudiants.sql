@@ -212,63 +212,79 @@ create index I_Achat_prix on AchatProduit(prix);
 drop index I_Achat_quantite;
 create index I_Achat_quantite on AchatProduit(quantite);
 
-
-
+-- Statistiques sur les index
 SELECT index_name as nom, index_type as type_index, blevel as profondeur,
   distinct_keys as nb_valeurs_distinctes, num_rows as nb_rowids, leaf_blocks as nb_pages_de_rowids,
   uniqueness as unicite,clustering_factor as CF
 FROM user_indexes;
 
+-- 7.a)
+SELECT /*+ index(a I_achat_prix) */
+*
+FROM AchatProduit a
+WHERE prix < 2000;
+
+-- 7.b)
+SELECT /*+ index(a I_achat_quantite) */
+*
+FROM AchatProduit a
+WHERE quantite > 40;
+
+-- 7.c)
 SELECT /*+ index(a I_achat_prix) */
 prix
 FROM AchatProduit a;
 
+-- 7.d)
 SELECT /*+ index(a I_achat_quantite) */
 numCde, numAchat
 FROM AchatProduit a
 WHERE quantite > 40 AND prix < 2000;
 
+--7.e)
 SELECT /*+ index_combine(a I_achat_prix I_achat_quantite) */
 numCde, numAchat
 FROM AchatProduit a
 WHERE prix < 2000 and quantite > 40;
 
-SELECT /*+ index_join(a I_achat_prix I_achat_quantite I_achat_numCde) */
+--7.f)
+SELECT /*+ index_join(a I_achat_prix I_achat_quantite) */
 numCde, numAchat
 FROM AchatProduit a
-WHERE prix < 100000 and quantite > 1 and numAchat < 20;
+WHERE prix < 2000 and quantite > 40;
+
+-- Question 8
+drop index I_Achat_prix_quantite;
+create index I_Achat_prix_quantite on AchatProduit(prix, quantite);
 
 drop index I_Achat_quantite_prix;
 create index I_Achat_quantite_prix on AchatProduit(quantite, prix);
 
-select /*+ a I_Achat_quantite_prix */
+-- 8.a)
+select /*+ a I_Achat_prix_quantite */
 *
 from AchatProduit a
 where prix < 1000 and quantite = 2;
 
-select /*+ a I_Achat_quantite_prix */
-*
-from AchatProduit a
-where prix > 1000;
-
-
-drop index I_Achat_prix_quantite;
-
-SELECT index_name as nom,
-index_type as type_index,
-blevel as profondeur,
-num_rows,
-leaf_blocks as nb_pages_de_rowids
-FROM user_indexes;
-
-
-create index I_Achat_prix_quantite on AchatProduit(prix, quantite);
-
+-- 8.b)
 select /*+ a I_Achat_prix_quantite */
 *
 from AchatProduit a
 where quantite = 2;
 
+-- 8.c)
+select /*+ a I_Achat_prix_quantite */
+*
+from AchatProduit a
+where prix < 1000;
+
+-- 8.d)
+select /*+ a I_Achat_prix_quantite */
+*
+from AchatProduit a
+where prix > 1000;
+
+-- Question 9
 SELECT index_name as nom,
 index_type as type_index,
 blevel as profondeur,
@@ -276,3 +292,58 @@ num_rows,
 leaf_blocks as nb_pages_de_rowids
 FROM user_indexes;
 
+-- Question 10
+SELECT index_name as nom,
+num_rows,
+clustering_factor as CF
+FROM user_indexes;
+
+-- Question 11
+/*select utl_raw.cast_to_number(low_value) as borneInf,
+utl_raw.cast_to_number(high_value) as borneSup
+from user_tab_columns
+where table_name = upper(T)
+and column_name = upper(ATT);
+
+select num_rows
+from user_tables
+where table_name = upper(T)*/
+
+-- Question 12
+alter table Commande add constraint cle_commande primary key(numCde);
+
+-- a)
+SELECT * FROM user_indexes;
+
+-- b)
+SELECT /*+ index(a cle_commande) */
+*
+FROM Commande a
+WHERE numCde = 200;
+
+-- Question 13
+-- a)
+select prix
+from AchatProduit
+order by prix;
+
+-- b)
+select distinct prix
+from AchatProduit
+order by prix;
+
+-- Question 14
+-- a)
+select min(prix)
+from AchatProduit;
+
+select max(prix)
+from AchatProduit;
+
+-- b)
+select min(prix), max(prix)
+from AchatProduit;
+
+-- Question 15
+select table_name, blocks as pages, num_rows as card
+from user_tables;
