@@ -1,6 +1,6 @@
 *.zip
 
-RITAL/data/
+RITAL/TAL/data/
 
 ### Python ###
 __pycache__/
