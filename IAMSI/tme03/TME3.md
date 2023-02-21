@@ -1,5 +1,24 @@
+# IAMSI - TME3
+## Prise en main de CLIPS
 
-Charge la base de règles et de faits.
+Hiérarchie familiale : 
+```mermaid
+flowchart TD
+
+%% Colors %%
+classDef blue fill:#66deff,stroke:#000,color:#000
+classDef green fill:#6ad98b,stroke:#000,color:#000
+
+%% Grand-Père %%
+Jean(Jean):::green --> Bob
+Jean(Jean):::green --> Claire
+
+%% Pères et mères
+Bob(Bob) & Zoe(Zoe) --> Yves(Yves)
+Claire(Claire) --> Luc(Luc) & Alain(Alain)
+```
+
+Pour charger la base de règles et de faits.
 ```
 CLIPS> (load "famille.clp")
 Defining defrule: my_init +j+j
