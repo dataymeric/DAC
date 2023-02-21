@@ -1,6 +1,6 @@
 (deftemplate patient
     ;; symptomes
-    (slot boutons (type SYMBOL) (allowed-symbols non peu beaucoup)
+    (slot boutons (type SYMBOL) (allowed-symbols non peu beaucoup))
     (slot rougeur (type SYMBOL) (allowed-symbols oui non))
     (slot fievre (type SYMBOL) (allowed-symbols faible forte non))
     (slot sensation (type SYMBOL) (allowed-symbols oui non))
@@ -13,7 +13,7 @@
 
 ;;;; Questions générales
 (defrule boutons
-    (not (bouton ?))
+    (not (boutons ?))
     =>
     (printout t crlf "Le patient a-t-il des boutons ? (peu/beaucoup/non)" crlf)
 	(printout t "Réponse : ")
@@ -134,10 +134,10 @@
 (defrule exantheme
     (not (exantheme ?))
     patient <- (patient (fievre ?fievre) (eruption_cutanee ?eruption_cutanee))
-    (or (patient (eruption_cutanee oui)) (patient (fievre forte))
+    (or (patient (eruption_cutanee oui)) (patient (fievre forte)))
     =>
     (printout t "Le patient a un exanthème." crlf)
-    (assert (exantheme oui)
+    (assert (exantheme oui))
     (modify ?patient (?exantheme exantheme))
 )
 
@@ -164,7 +164,7 @@
 (defrule rougeole
     (not (rougeole ?))
     patient <- (patient (etat_febrile ?etat_febrile) (yeux ?yeux) (exantheme ?exantheme) (signe_suspect ?signe_suspect) (fievre ?fievre) (boutons ?boutons))
-    (or (and (patient (etat_febrile oui)) (patient (yeux oui)) (patient (exantheme oui))) (and (patient (signe_suspect oui)) (patient (fievre forte)))
+    (or (and (patient (etat_febrile oui)) (patient (yeux oui)) (patient (exantheme oui))) (and (patient (signe_suspect oui)) (patient (fievre forte))))
     =>
     (if (and (neq ?fievre peu) (neq ?boutons peu)) then
         (printout t "Le patient a la rougeole." crlf)
