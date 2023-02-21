@@ -2,6 +2,8 @@
 
 RITAL/TAL/data/
 
+.obsidian
+
 ### Python ###
 __pycache__/
 
