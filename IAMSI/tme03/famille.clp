@@ -4,18 +4,13 @@
 ; La règle qui permet de remplir la base de faits
 ; elle est facultative si on décide d'entrer les faits à la
 ; main dans CLIPS
-(defrule my_init
-	(initial-fact)
-=>
-	(watch facts)
-	(watch rules)
-
-	(assert (pere claire jean))
-	(assert (pere bob jean))
-	(assert (pere yves bob))
-	(assert (mere yves zoe))
-	(assert (mere luc claire))
-	(assert (mere alain claire))
+(deffacts my_init
+	(pere claire jean)
+	(pere bob jean)
+	(pere yves bob)
+	(mere yves zoe)
+	(mere luc claire)
+	(mere alain claire)
 )
 
 ; Grand-père par le père
