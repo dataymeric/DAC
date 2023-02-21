@@ -11,7 +11,6 @@
 ; Si le sujet a peu de boutons, il a comme symtômes une éruption cutanée
 (def rule eruption_cutanee1
     (peu_bouton ?x)
-    (beaucoup_bouton ?x)
 =>
     (assert (eruption_cutanee ?x))
 )
