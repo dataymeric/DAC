@@ -5,8 +5,8 @@ import pickle
 import pandas as pd
 
 
-POI_FILENAME = "data/poi-paris.pkl"
-parismap = mpimg.imread("data/paris-48.806-2.23--48.916-2.48.jpg")
+POI_FILENAME = "../data/poi-paris.pkl"
+parismap = mpimg.imread("../data/paris-48.806-2.23--48.916-2.48.jpg")
 ## coordonnees GPS de la carte
 xmin, xmax = 2.23, 2.48  # coord_x min et max
 ymin, ymax = 48.806, 48.916  # coord_y min et max
@@ -22,8 +22,8 @@ class Density(object):
 
     def score(self, data):
         # A compléter : retourne la log-vraisemblance
-        pass
-
+        density = self.predict(data)
+        return np.sum(np.log(np.where(density == 0, 1e-10, density)))
 
 class Histogramme(Density):
     def __init__(self, steps=10):
@@ -32,6 +32,9 @@ class Histogramme(Density):
 
     def fit(self, x):
         # A compléter : apprend l'histogramme de la densité sur x
+        self.hist = np.histogramdd(x, bins=[self.steps] * x.shape[1], density=True)
+        
+    def to_bin(self, steps):
         pass
 
     def predict(self, x):
@@ -54,7 +57,9 @@ class KernelDensity(Density):
 
 
 def get_density2D(f, data, steps=100):
-    """Calcule la densité en chaque case d'une grille steps x steps dont les bornes sont calculées à partir du min/max de data. Renvoie la grille estimée et la discrétisation sur chaque axe."""
+    """Calcule la densité en chaque case d'une grille steps x steps dont les bornes sont
+    calculées à partir du min/max de data. Renvoie la grille estimée et la discrétisation 
+    sur chaque axe."""
     xmin, xmax = data[:, 0].min(), data[:, 0].max()
     ymin, ymax = data[:, 1].min(), data[:, 1].max()
     xlin, ylin = np.linspace(xmin, xmax, steps), np.linspace(ymin, ymax, steps)
@@ -65,7 +70,9 @@ def get_density2D(f, data, steps=100):
 
 
 def show_density(f, data, steps=100, log=False):
-    """Dessine la densité f et ses courbes de niveau sur une grille 2D calculée à partir de data, avec un pas de discrétisation de steps. Le paramètre log permet d'afficher la log densité plutôt que la densité brute"""
+    """Dessine la densité f et ses courbes de niveau sur une grille 2D calculée à partir
+    de data, avec un pas de discrétisation de steps. Le paramètre log permet d'afficher 
+    la log densité plutôt que la densité brute"""
     res, xlin, ylin = get_density2D(f, data, steps)
     xx, yy = np.meshgrid(xlin, ylin)
     plt.figure()
@@ -87,7 +94,8 @@ def show_img(img=parismap):
 
 
 def load_poi(typepoi, fn=POI_FILENAME):
-    """Dictionaire POI, clé : type de POI, valeur : dictionnaire des POIs de ce type : (id_POI, [coordonnées, note, nom, type, prix])
+    """Dictionaire POI, clé : type de POI, valeur : dictionnaire des POIs de ce type : 
+    (id_POI, [coordonnées, note, nom, type, prix])
 
     Liste des POIs : furniture_store, laundry, bakery, cafe, home_goods_store,
     clothing_store, atm, lodging, night_club, convenience_store, restaurant, bar
@@ -99,7 +107,8 @@ def load_poi(typepoi, fn=POI_FILENAME):
 
 
 plt.ion()
-# Liste des POIs : furniture_store, laundry, bakery, cafe, home_goods_store, clothing_store, atm, lodging, night_club, convenience_store, restaurant, bar
+# Liste des POIs : furniture_store, laundry, bakery, cafe, home_goods_store, 
+# clothing_store, atm, lodging, night_club, convenience_store, restaurant, bar
 # La fonction charge la localisation des POIs dans geo_mat et leur note.
 geo_mat, notes = load_poi("bar")
 
