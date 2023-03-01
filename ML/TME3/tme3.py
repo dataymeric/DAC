@@ -1,27 +1,110 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
 from mltools import plot_data, plot_frontiere, make_grid, gen_arti
 
 
+def reshape(w, x, y):
+    """Reshape les entrées.
+
+    Parameters
+    ----------
+    w : array
+        paramètre
+    x : array
+        données
+    y : array
+        labels
+
+    Returns
+    ----------
+    w : array de taille (d, 1)
+        paramètres
+    x : array de taille (n, d)
+        données
+    y : array de taille (n, 1)
+        labels
+    """
+    return w.reshape(-1, 1), x.reshape(y.shape[0], w.shape[0]), y.reshape(-1, 1)
+
+
 def mse(w, x, y):
-    # a implémenter
-    return np.mean((y - np.dot(x, w)) ** 2)
+    """Renvoie le coût des moindres carrés pour une fonction linéaire.
+
+    Parameters
+    ----------
+    w : array de taille (d, 1)
+        Vecteur poids.
+    x : array de taille (n, d)
+        Données.
+    y : array de taille (n, 1)
+        Labels.
+
+    Returns
+    ----------
+    z : array (n, 1)
+        Coût des moindres carrés.
+    """
+    return (np.dot(x, w) - y) ** 2
 
 
 def mse_grad(w, x, y):
-    # a implémenter
-    pass
+    """Renvoie le gradient des moindres carrés sous forme d'une matrice (n, d).
+
+    Parameters
+    ----------
+    w : array de taille (d, 1)
+        Vecteur poids.
+    x : array de taille (n, d)
+        Données.
+    y : array de taille (n, 1)
+        Labels.
+
+    Returns
+    ----------
+    z : array (n, 1)
+        Gradient des moindres carrés.
+    """
+    return 2 * x * (np.dot(x, w) - y)
 
 
 def reglog(w, x, y):
-    # a implémenter
-    pass
+    """Renvoie le coût de la régression logistique.
+
+    Parameters
+    ----------
+    w : array de taille (d, 1)
+        Vecteur poids.
+    x : array de taille (n, d)
+        Données.
+    y : array de taille (n, 1)
+        Labels.
+
+    Returns
+    ----------
+    z : array (n, 1)
+        Coût de la régression logistique..
+    """
+    return np.log(1 + np.exp(-y * np.dot(x, w)))
 
 
 def reglog_grad(w, x, y):
-    # a implémenter
-    pass
+    """Renvoie le gradient de la régression logistique sous forme d'une matrice
+
+    Parameters
+    ----------
+    w : array de taille (d, 1)
+        Vecteur poids.
+    x : array de taille (n, d)
+        Données.
+    y : array de taille (n, 1)
+        Labels.
+
+    Returns
+    ----------
+    z : array (n, 1)
+        Gradient de la régression logistique.
+    """
+    return (-y * x) / (1 + np.exp(y * np.dot(x, w)))
 
 
 def check_fonctions():
@@ -34,6 +117,24 @@ def check_fonctions():
     assert np.isclose(mse_grad(wrandom, datax, datay).mean(), -1.43120, rtol=1e-4)
     assert np.isclose(reglog_grad(wrandom, datax, datay).mean(), -0.42714, rtol=1e-4)
     np.random.seed()
+
+
+def grad_check(f, f_grad, N=100):
+    pass
+
+
+def descente_gradient(x, y, f_loss, f_grad, eps, iter):
+    """Performe une descente de gradient."""
+    w = np.random.randn(datax.shape[1], 1)
+    liste_w = [w]  # liste des w
+    losses = []  # valeurs de la fonction de coût
+    for i in range(iter):
+        w = w - eps * f_grad(w, x, y).mean()
+        # if np.allclose(w, liste_w[i], rtol=1e-4):
+        #     break  # convergence du gradient
+        losses.append(f_loss(w, x, y).mean())
+        liste_w.append(w)
+    return w, np.array(liste_w), np.array(losses)
 
 
 if __name__ == "__main__":
