@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import pickle
 import pandas as pd
+from sklearn.base import BaseEstimator
 
 
 POI_FILENAME = "../data/poi-paris.pkl"
@@ -13,17 +14,26 @@ ymin, ymax = 48.806, 48.916  # coord_y min et max
 coords = [xmin, xmax, ymin, ymax]
 
 
-class Density(object):
+class Density(BaseEstimator):
     def fit(self, data):
+        """Apprend l'estimateur sur les données passées.
+        """
         pass
 
     def predict(self, data):
+        """Prédit la densité.
+        """
         pass
 
     def score(self, data):
-        # A compléter : retourne la log-vraisemblance
-        density = self.predict(data)
-        return np.sum(np.log(np.where(density == 0, 1e-10, density)))
+        """Renvoie la log-vraisemblance de l'estimateur.
+        
+        Pour éviter de passer des valeurs nulles au log (ce qu'il n'aime pas), on ajoute
+        une très petite valeur à chaque vraisemblance avant de passer au log.
+        """
+        density = self.predict(data) + 1e-10
+        return np.sum(np.log(density))
+
 
 class Histogramme(Density):
     def __init__(self, steps=10):
@@ -31,15 +41,31 @@ class Histogramme(Density):
         self.steps = steps
 
     def fit(self, x):
-        # A compléter : apprend l'histogramme de la densité sur x
-        self.hist = np.histogramdd(x, bins=[self.steps] * x.shape[1], density=True)
-        
-    def to_bin(self, steps):
-        pass
+        self.density, self.bins = np.histogramdd(x, bins=self.steps, density=True)
+
+    def to_bin(self, x):
+        """Retourne l'index de la bin correspondante pour chaque valeur dans la liste 
+        'values' en utilisant les bords des bins d'un histogramme à d dimensions.
+        """
+        # Vérifier que les dimensions correspondent
+        assert x.shape[-1] == len(
+            self.bins
+        ), "Le nombre de dimensions ne correspond pas"
+        bin_indices = []
+        # Parcours de toutes les dimensions
+        for dim in range(x.shape[-1]):
+            bin_indices.append(np.searchsorted(self.bins[dim], x[:, dim], side="right"))
+            # équivalent : np.digitize(x[:,dim], self.bins[dim])
+        bin_indices = np.array(bin_indices) - 1
+        bin_indices = np.where(bin_indices == self.steps, self.steps - 1, bin_indices)
+        return np.stack(np.array(bin_indices), axis=-1)
 
     def predict(self, x):
-        # A compléter : retourne la densité associée à chaque point de x
-        pass
+        prediction = []
+        bin_indices = self.to_bin(x)
+        for i in bin_indices:
+            prediction.append(self.density[tuple(i)])
+        return np.array(prediction)
 
 
 class KernelDensity(Density):
@@ -52,13 +78,51 @@ class KernelDensity(Density):
         self.x = x
 
     def predict(self, data):
-        # A compléter : retourne la densité associée à chaque point de data
-        pass
+        n, d = self.x.shape
+        denominateur = n * self.sigma**d
+        prediction = []  # = np.zeros(len(data))
+        for x in data:
+            prediction.append(np.sum(self.kernel((x - self.x) / self.sigma), axis=0))
+        return np.array(prediction) / denominateur
+
+
+class NadarayaWatson(Density):
+    def __init__(self, kernel=None, sigma=0.1):
+        Density.__init__(self)
+        self.kernel = kernel
+        self.sigma = sigma
+
+    def fit(self, x, y):
+        self.x = x
+        self.y = y
+
+    def predict(self, data):
+        prediction = []
+        for x in data:
+            noyau = self.kernel((x - self.x) / self.sigma) + 1e-10
+            prediction.append(np.sum(self.y * noyau) / np.sum(noyau))
+        return np.array(prediction)
+
+
+def kernel_uniform(x):
+    """Implémentation du noyau uniforme à d dimensions."""
+    return np.all(np.abs(np.array(x)) <= 0.5, axis=1)
+
+
+def kernel_gaussian(x):
+    """Implémentation du noyau gaussien à d dimensions."""
+    d = x.shape[-1]
+    return (2 * np.pi) ** (-d / 2) * np.exp(-0.5 * np.linalg.norm(x, axis=1) ** 2)
+
+
+def moindres_carres(y_true, y_pred):
+    """Renvoie l'erreur des moindres carrés."""
+    return np.sum(np.abs(y_true - y_pred) / len(y_true))
 
 
 def get_density2D(f, data, steps=100):
     """Calcule la densité en chaque case d'une grille steps x steps dont les bornes sont
-    calculées à partir du min/max de data. Renvoie la grille estimée et la discrétisation 
+    calculées à partir du min/max de data. Renvoie la grille estimée et la discrétisation
     sur chaque axe."""
     xmin, xmax = data[:, 0].min(), data[:, 0].max()
     ymin, ymax = data[:, 1].min(), data[:, 1].max()
@@ -69,13 +133,14 @@ def get_density2D(f, data, steps=100):
     return res, xlin, ylin
 
 
-def show_density(f, data, steps=100, log=False):
+def show_density(f, data, steps=100, log=False, animate=False):
     """Dessine la densité f et ses courbes de niveau sur une grille 2D calculée à partir
-    de data, avec un pas de discrétisation de steps. Le paramètre log permet d'afficher 
+    de data, avec un pas de discrétisation de steps. Le paramètre log permet d'afficher
     la log densité plutôt que la densité brute"""
     res, xlin, ylin = get_density2D(f, data, steps)
     xx, yy = np.meshgrid(xlin, ylin)
-    plt.figure()
+    if not animate:
+        plt.figure()
     show_img()
     if log:
         res = np.log(res + 1e-10)
@@ -94,20 +159,22 @@ def show_img(img=parismap):
 
 
 def load_poi(typepoi, fn=POI_FILENAME):
-    """Dictionaire POI, clé : type de POI, valeur : dictionnaire des POIs de ce type : 
+    """Dictionaire POI, clé : type de POI, valeur : dictionnaire des POIs de ce type :
     (id_POI, [coordonnées, note, nom, type, prix])
 
     Liste des POIs : furniture_store, laundry, bakery, cafe, home_goods_store,
     clothing_store, atm, lodging, night_club, convenience_store, restaurant, bar
     """
     poidata = pickle.load(open(fn, "rb"))
-    data = np.array([[v[1][0][1], v[1][0][0]] for v in sorted(poidata[typepoi].items())])
+    data = np.array(
+        [[v[1][0][1], v[1][0][0]] for v in sorted(poidata[typepoi].items())]
+    )
     note = np.array([v[1][1] for v in sorted(poidata[typepoi].items())])
     return data, note
 
 
 plt.ion()
-# Liste des POIs : furniture_store, laundry, bakery, cafe, home_goods_store, 
+# Liste des POIs : furniture_store, laundry, bakery, cafe, home_goods_store,
 # clothing_store, atm, lodging, night_club, convenience_store, restaurant, bar
 # La fonction charge la localisation des POIs dans geo_mat et leur note.
 geo_mat, notes = load_poi("bar")
