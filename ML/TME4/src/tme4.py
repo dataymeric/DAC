@@ -84,7 +84,8 @@ class Lineaire(object):
         datay : array de taille (n, 1)
             Labels.
         batch_size : int
-            Nombre d'exemples par batchs pour la descente par mini-batch.
+            Nombre d'exemples par batchs pour la descente par mini-batch. Paramètre
+            ignoré si 'mode' n'est pas 'minibatch'.
 
         Returns
         ----------
