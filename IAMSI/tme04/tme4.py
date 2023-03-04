@@ -71,8 +71,7 @@ def au_moins_un(variables):
     clause : liste de str de taille (1,)
         Clause encodée sous la contrainte de cardinalité "au moins 1".
     """
-    clause = [str(v) for v in variables]
-    clause.append("0")
+    clause = [str(v) for v in variables] + ["0"]
     return [" ".join(clause)]
 
 
@@ -98,9 +97,59 @@ def au_plus_un(variables):
     return clauses
 
 
+def au_plus_k(variables, k):
+    """Renvoie une clause (au format DIMACS) correspondant à la contrainte
+    "au plus k de ces variables est vraie".
+
+    Parameters
+    ----------
+    variables : liste d'int
+        Variables à encoder.
+    k : int
+        Limite.
+
+    Returns
+    -------
+    clauses : liste de str
+        Clauses encodées.
+    """
+    from itertools import combinations
+
+    clauses = []
+    n = len(variables)
+    for i in range(k + 1, n + 1):
+        for c in combinations(variables, i):
+            clause = [str(-x) for x in c] + ["0"]
+            clauses.append(" ".join(clause))
+    return clauses
+
+
+def au_moins_k(variables, k):
+    """Renvoie une clause (au format DIMACS) correspondant à la contrainte
+    "au moins k de ces variables est vraie".
+
+    Parameters
+    ----------
+    variables : liste d'int
+        Variables à encoder.
+    k : int
+        Limite.
+
+    Returns
+    -------
+    liste de str
+        Clauses encodées.
+    """
+    n = len(variables)
+    neg_variables = [-x for x in variables]
+    return au_plus_k(neg_variables, n - k)
+
+
 def encoderC1(ne, nj):
     """Renvoie des contraintes (au format DIMACS) correspondant à la contrainte
     C1 : "chaque équipe ne peut jouer plus d'un match par jour".
+
+    Indication : pour 3 équipes et 4 jours, cela génère 72 contraintes.
 
     Parameters
     ----------
@@ -129,6 +178,8 @@ def encoderC2(ne, nj):
     C2 : "sur la durée d'un championnat, chaque équipe doit rencontrer l'ensemble
     des autres équipes une fois à domicile et une fois à l'extérieur, soit
     exactement 2 matchs par équipe adverse".
+
+    Indication : pour 3 équipes et 4 jours, cela génère 42 contraintes.
 
     Parameters
     ----------
@@ -166,12 +217,11 @@ def encoder(ne, nj):
     -------
     contraintes : liste de str
         Contraintes C1 et C2.
-
     """
     contraintes = encoderC1(ne, nj) + encoderC2(ne, nj)
     with open("championnat.cnf", "w") as f:
         # Ecrire l'en-tête du fichier DIMACS
-        f.write("p cnf {} {}\n".format(ne**2 * nj - 1, len(contraintes)))
+        f.write(f"p cnf {ne**2 * nj - 1} {len(contraintes)}\n")
         # Ecrire les contraintes
         for contrainte in contraintes:
             f.write(contrainte + "\n")
@@ -236,7 +286,7 @@ def decoder(output_file, ne, nj, team_names_file=None):
 
 
 def affichage(planning):
-    """Affiche lisiblement dans la console un planning de matchs.
+    """Affiche  un planning de matchs sous la forme d'un tableau ASCII dans la console.
 
     Parameters
     ----------
@@ -245,7 +295,7 @@ def affichage(planning):
 
     Returns
     -------
-    None
+    None (stdout)
         Affichage console.
     """
     if planning is None:
@@ -256,7 +306,7 @@ def affichage(planning):
         for row in planning.values():
             for column, value in row.items():
                 column_lengths[column] = max(
-                    column_lengths.get(column, 0), max(len(str(column)), len(str(value)))
+                    column_lengths.get(column, 0), max(len(column), len(str(value)))
                 )
 
         # Calcule la largeur totale de la table
@@ -382,7 +432,7 @@ if __name__ == "__main__":
         teams = None
     elif not os.path.isfile(teams):
         raise ValueError(f"Le fichier '{teams}' n'existe pas.")
-    
+
     # Programme
     encoder(ne, nj)  # on encode
     glucose()  # on solve grâce à glucose
