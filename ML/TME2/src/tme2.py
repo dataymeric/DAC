@@ -16,18 +16,16 @@ coords = [xmin, xmax, ymin, ymax]
 
 class Density(BaseEstimator):
     def fit(self, data):
-        """Apprend l'estimateur sur les données passées.
-        """
+        """Apprend l'estimateur sur les données passées."""
         pass
 
     def predict(self, data):
-        """Prédit la densité.
-        """
+        """Prédit la densité."""
         pass
 
     def score(self, data):
         """Renvoie la log-vraisemblance de l'estimateur.
-        
+
         Pour éviter de passer des valeurs nulles au log (ce qu'il n'aime pas), on ajoute
         une très petite valeur à chaque vraisemblance avant de passer au log.
         """
@@ -44,7 +42,7 @@ class Histogramme(Density):
         self.density, self.bins = np.histogramdd(x, bins=self.steps, density=True)
 
     def to_bin(self, x):
-        """Retourne l'index de la bin correspondante pour chaque valeur dans la liste 
+        """Retourne l'index de la bin correspondante pour chaque valeur dans la liste
         'values' en utilisant les bords des bins d'un histogramme à d dimensions.
         """
         # Vérifier que les dimensions correspondent
@@ -133,28 +131,45 @@ def get_density2D(f, data, steps=100):
     return res, xlin, ylin
 
 
-def show_density(f, data, steps=100, log=False, animate=False):
+def add_colorbar(im, aspect=20, pad_fraction=0.5, **kwargs):
+    """Add a vertical color bar to an image plot."""
+    from mpl_toolkits import axes_grid1
+
+    divider = axes_grid1.make_axes_locatable(im.axes)
+    width = axes_grid1.axes_size.AxesY(im.axes, aspect=1.0 / aspect)
+    pad = axes_grid1.axes_size.Fraction(pad_fraction, width)
+    current_ax = plt.gca()
+    cax = divider.append_axes("right", size=width, pad=pad)
+    plt.sca(current_ax)
+    return im.axes.figure.colorbar(im, cax=cax, **kwargs)
+
+
+def show_density(f, data, steps=100, log=False, animate=False, axis=plt):
     """Dessine la densité f et ses courbes de niveau sur une grille 2D calculée à partir
     de data, avec un pas de discrétisation de steps. Le paramètre log permet d'afficher
     la log densité plutôt que la densité brute"""
     res, xlin, ylin = get_density2D(f, data, steps)
     xx, yy = np.meshgrid(xlin, ylin)
-    if not animate:
+    if not animate and axis == plt:
         plt.figure()
-    show_img()
+    im = show_img(axis=axis)
     if log:
         res = np.log(res + 1e-10)
-    plt.scatter(data[:, 0], data[:, 1], alpha=0.8, s=3)
-    show_img(res)
-    plt.colorbar()
-    plt.contour(xx, yy, res, 20)
+    axis.scatter(data[:, 0], data[:, 1], alpha=0.8, s=3)
+    im = show_img(res, axis=axis)
+    if not animate:
+        add_colorbar(im, aspect=10, pad_fraction=-3)
+    else:
+        plt.colorbar(im, shrink=0.66, aspect=20 * 0.66)
+    axis.contour(xx, yy, res, 20)
+    plt.tight_layout()
 
 
-def show_img(img=parismap):
+def show_img(img=parismap, axis=plt):
     """Affiche une matrice ou une image selon les coordonnées de la carte de Paris."""
     origin = "lower" if len(img.shape) == 2 else "upper"
     alpha = 0.3 if len(img.shape) == 2 else 1.0
-    plt.imshow(img, extent=coords, aspect=1.5, origin=origin, alpha=alpha)
+    return axis.imshow(img, extent=coords, aspect=1.5, origin=origin, alpha=alpha)
     ## extent pour controler l'echelle du plan
 
 
@@ -171,15 +186,3 @@ def load_poi(typepoi, fn=POI_FILENAME):
     )
     note = np.array([v[1][1] for v in sorted(poidata[typepoi].items())])
     return data, note
-
-
-plt.ion()
-# Liste des POIs : furniture_store, laundry, bakery, cafe, home_goods_store,
-# clothing_store, atm, lodging, night_club, convenience_store, restaurant, bar
-# La fonction charge la localisation des POIs dans geo_mat et leur note.
-geo_mat, notes = load_poi("bar")
-
-# Affiche la carte de Paris
-show_img()
-# Affiche les POIs
-plt.scatter(geo_mat[:, 0], geo_mat[:, 1], alpha=0.8, s=3)
