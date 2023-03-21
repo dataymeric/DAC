@@ -125,7 +125,7 @@ def grad_check(f, f_grad, N=100):
 
 def descente_gradient(x, y, f_loss, f_grad, eps, iter):
     """Performe une descente de gradient."""
-    w = np.random.randn(datax.shape[1], 1)
+    w = np.random.randn(x.shape[1], 1)
     liste_w = [w]  # liste des w
     losses = []  # valeurs de la fonction de coût
     for i in range(iter):
