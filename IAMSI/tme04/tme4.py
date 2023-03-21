@@ -4,7 +4,7 @@ IAMSI - TME4
 Programmation SAT - Générateur de championnat
 2022-2023
 
-@author: Aymeric Delefosse
+@author: @dataymeric
 """
 
 
@@ -121,7 +121,7 @@ def au_plus_un(variables):
 
 def au_plus_k(variables, k):
     """Renvoie une clause (au format DIMACS) correspondant à la contrainte
-    "au plus k de ces variables est vraie".
+    "au plus k de ces variables sont vraies".
 
     Parameters
     ----------
@@ -157,7 +157,7 @@ def au_plus_k(variables, k):
 
 def au_moins_k(variables, k):
     """Renvoie une clause (au format DIMACS) correspondant à la contrainte
-    "au moins k de ces variables est vraie".
+    "au moins k de ces variables sont vraies".
 
     Parameters
     ----------
@@ -248,6 +248,8 @@ def encoderC3(ne, nj, pext=50, pdom=40):
     des matchs le dimanche.
     On considère que le dimanche est le deuxième jour de la semaine (chiffres impairs).
 
+    Indication : pour 3 équipes et 4 jours, cela génère 24 contraintes.
+
     Parameters
     ----------
     ne : int
@@ -282,6 +284,9 @@ def encoderC3(ne, nj, pext=50, pdom=40):
 def encoderC4(ne, nj):
     """Renvoie des contraintes (au format DIMACS) correspondant aux contraintes
     des matchs consécutifs.
+
+    Note : cette implémentation est fausse, n'ayant pas bien compris comment récupérer
+    la notion de matchs consécutifs.
 
     Parameters
     ----------
@@ -321,7 +326,7 @@ def encoder(ne, nj, extension=False):
     Returns
     -------
     contraintes : liste de str
-        Contraintes C1 et C2.
+        Contraintes C1 et C2 (avec C3 et C4 si extension).
     """
     contraintes = encoderC1(ne, nj) + encoderC2(ne, nj)
     if extension:
@@ -347,7 +352,7 @@ def decoder(output_file, ne, nj, team_names_file=None):
         Nombre d'équipes.
     nj : int
         Nombre de jours.
-    team_names_file : str, optionnel
+    team_names_file : str, optional
         Nom du fichier contenant le nom des équipes.
 
     Returns
@@ -483,9 +488,9 @@ def affichage(planning):
 
 def glucose():
     """Appel le solveur SAT glucose. Considére qu'il fait parti de l'environnement
-    (e.g. /usr/local/bin/). Travaille dans le répertoire courant, à partir des fichiers
-    générés à l'aide de la fonction `encoder`. Enregistre les résultats dans un fichier
-    `planning.cnf`.
+    (e.g. /usr/local/bin/, ne marchera pas sous Windows). Travaille dans le répertoire
+    courant, à partir des fichiers générés à l'aide de la fonction `encoder`.
+    Enregistre les résultats dans un fichier `planning.cnf`.
     """
     import subprocess
 
@@ -565,8 +570,9 @@ if __name__ == "__main__":
     )
     janitor = input(
         "Voulez vous nettoyer les fichiers de travail à la fin du programme ?"
-        + "(o/oui, appuyer sur la touche 'enter' pour passer)"
+        + "(o/oui, appuyer sur la touche 'enter' pour passer) "
     )
+
     # Checks
     if teams == "":
         teams = None
@@ -579,14 +585,18 @@ if __name__ == "__main__":
     planning = decoder("planning.cnf", ne, nj, teams)  # Décodage le résultat
     affichage(planning)  # Affichage du résultat sous la forme d'un tableau
 
+    # Nettoyage des fichiers de travail (si l'utilisateur l'a spécifié)
     if janitor.lower() in ("o", "oui"):
         os.remove("planning.cnf")
         os.remove("championnat.cnf")
 
+
 """---- Résultats ----
+Pour ne=3, nj=4, le problème n'est pas satisfiable. Par optimisation, il faut au minimum
+6 jours pour organiser un championnat avec 3 équipes.
 
 Pour ne=3, nj=6, et le nom des équipes étant stockées dans 'equipes.txt' on 
-obtient le résultat suivant à l'aide de glucose et du programme :
+obtient le résultat suivant à l'aide de glucose et du programme python :
 
                 Planning des matchs                 
 +------+---------------------+---------------------+
@@ -602,7 +612,8 @@ obtient le résultat suivant à l'aide de glucose et du programme :
 
 Que les meilleurs gagnent !
 
-Pour ne=8, nj=14 (valeur trouvée par optimisation), on a 4 matchs par jour :
+Pour ne=8, nj=14 (valeur trouvée par optimisation), on a 4 matchs par jour (soit 56
+matchs en tout) :
 
                    Planning des matchs                    
 +------+------------------------+------------------------+
