@@ -59,20 +59,86 @@ def perceptron_grad(w, x, y):
     return np.where(perceptron_loss(w, x, y) <= 0, 0, -y * x)
 
 
-def get_batches(x, y, batch_size=50):
-    x.shape[0] // batch_size
-    y.shape[0] // batch_size
+def hinge_loss(w, x, y, alpha, λ):
+    """Renvoie la hinge loss.
+
+    Parameters
+    ----------
+    w : array de taille (d, 1)
+        Vecteur poids.
+    x : array de taille (n, d)
+        Données.
+    y : array de taille (n, 1)
+        Labels.
+    alpha : int
+        Hinge.
+    λ : int
+        Pénalisation.
+
+    Returns
+    ----------
+    z : array (n, 1)
+        Hinge loss.
+    """
+    w, y = reshape(w, x, y)
+    return np.maximum(0, alpha - y * np.dot(w, x)) + λ * np.linalg.norm(w) ** 2
+
+
+def hinge_loss_grad(w, x, y, alpha, λ):
+    """Renvoie le gradient de la hinge loss.
+
+    Parameters
+    ----------
+    w : array de taille (d, 1)
+        Vecteur poids.
+    x : array de taille (n, d)
+        Données.
+    y : array de taille (n, 1)
+        Labels.
+    alpha : int
+        Hinge.
+    λ : int
+        Pénalisation.
+
+    Returns
+    ----------
+    z : array (n, 1)
+        Hinge loss.
+    """
+    w, y = reshape(w, x, y)
+    if -y * np.dot(w, x) + λ * np.linalg.norm(w) ** 2 < alpha:
+        return 2 * λ * w - y * x
+    return 0        
+
+def proj_biais(datax):
+    biais = np.ones((datax.shape[0], 1))
+    return np.hstack((biais, datax))
+
+
+def proj_poly(datax):
+    biais = np.ones((datax.shape[0], 1))
+    return np.hstack((biais, datax, datax * datax))
+
+
+def proj_gauss(datax, base, sigma):
+    return np.exp(-(np.linalg.norm(datax - base) ** 2) / (2 * sigma))
 
 
 class Lineaire(object):
     def __init__(
-        self, loss=perceptron_loss, loss_g=perceptron_grad, max_iter=100, eps=0.01
+        self,
+        loss=perceptron_loss,
+        loss_g=perceptron_grad,
+        max_iter=100,
+        eps=0.01,
+        projection=None,
     ):
         self.max_iter = max_iter
         self.eps = eps
         self.w = None
         self.loss = loss
         self.loss_g = loss_g
+        self.projection = projection
 
     def fit(self, datax, datay, batch_size=50, mode=None):
         """Performe une descente de gradient.
@@ -83,9 +149,11 @@ class Lineaire(object):
             Données.
         datay : array de taille (n, 1)
             Labels.
-        batch_size : int
+        batch_size : int, default=50
             Nombre d'exemples par batchs pour la descente par mini-batch. Paramètre
             ignoré si 'mode' n'est pas 'minibatch'.
+        mode : {stochastique, minibatch, None}, default='None'
+            Définit l'algorithme utilisé pour la descente de gradient.
 
         Returns
         ----------
@@ -96,6 +164,8 @@ class Lineaire(object):
         losses : array(self.max_iter)
             Historique des coûts au fur et à mesure de la descente de gradient.
         """
+        if self.projection is not None:
+            datax = self.projection(datax)
         self.w = np.random.randn(datax.shape[1], 1)
         weights = [self.w]
         losses = []
@@ -130,6 +200,8 @@ class Lineaire(object):
 
     def predict(self, datax):
         """Infére le label des données."""
+        if self.projection is not None:
+            datax = self.projection(datax)
         return np.sign(np.dot(datax, self.w))
 
     def score(self, datax, datay):
