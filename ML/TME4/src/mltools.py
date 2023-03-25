@@ -48,6 +48,23 @@ def plot_frontiere(data, f, step=20):
     )
 
 
+def plot_frontiere_perceptron(data, f, step=1_000):
+    mmax = data.max(0)
+    mmin = data.min(0)
+    x, y = np.meshgrid(
+        np.linspace(mmin[0], mmax[0], step), np.linspace(mmin[1], mmax[1], step)
+    )
+    grid = np.hstack((x.reshape(x.size, 1), y.reshape(y.size, 1)))
+    pred = f.predict(grid)
+    plt.contourf(
+        x,
+        y,
+        pred.reshape(x.shape),
+        colors=("lightgray", "skyblue"),
+        levels=[-1000, 0, 1000],
+    )
+
+
 def make_grid(data=None, xmin=-5, xmax=5, ymin=-5, ymax=5, step=20):
     """Cree une grille sous forme de matrice 2d de la liste des points
     :param data: pour calcluler les bornes du graphe
