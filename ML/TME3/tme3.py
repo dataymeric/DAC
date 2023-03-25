@@ -9,20 +9,20 @@ def reshape(w, x, y):
     Parameters
     ----------
     w : array
-        paramètre
+        Vecteur poids.
     x : array
-        données
+        Données.
     y : array
-        labels
+        Labels.
 
     Returns
     ----------
     w : array de taille (d, 1)
-        paramètres
+        Vecteur poids.
     x : array de taille (n, d)
-        données
+        Données.
     y : array de taille (n, 1)
-        labels
+        Labels.
     """
     return w.reshape(-1, 1), x.reshape(y.shape[0], w.shape[0]), y.reshape(-1, 1)
 
@@ -124,17 +124,42 @@ def grad_check(f, f_grad, N=100):
 
 
 def descente_gradient(x, y, f_loss, f_grad, eps, iter):
-    """Performe une descente de gradient."""
+    """Performe une descente de gradient.
+
+    Parameters
+    ----------
+    x : array de taille (n, d)
+        Données.
+    y : array de taille (n, 1)
+        Labels.
+    f_loss : callable
+        Fonction de coût.
+    f_grad : callable
+        Gradient de la fonction de coût.
+    eps : float
+        Pas d'apprentissage.
+    iter : int
+        Nombre d'itérations.
+
+    Returns
+    ----------
+    w : array (d, 1)
+        Vecteur poids optimal.
+    weights : array(self.max_iter + 1, d, 10)
+        Historique des vecteurs poids au fur et à mesure de la descente de gradient.
+    losses : array(self.max_iter)
+        Historique des coûts au fur et à mesure de la descente de gradient.
+    """
     w = np.random.randn(x.shape[1], 1)
-    liste_w = [w]  # liste des w
+    weights = [w]  # liste des w
     losses = []  # valeurs de la fonction de coût
-    for i in range(iter):
-        w = w - eps * f_grad(w, x, y).mean()
-        # if np.allclose(w, liste_w[i], rtol=1e-4):
+    for _ in range(iter):
+        w -= eps * f_grad(w, x, y).mean()
+        # if np.allclose(w, weights[i], rtol=1e-4):
         #     break  # convergence du gradient
         losses.append(f_loss(w, x, y).mean())
-        liste_w.append(w)
-    return w, np.array(liste_w), np.array(losses)
+        weights.append(w)
+    return w, np.array(weights), np.array(losses)
 
 
 if __name__ == "__main__":
