@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 from mltools import plot_data, plot_frontiere, make_grid, gen_arti
 
 
-def reshape(w, x, y):
+def reshape(w, X, y):
     """Reshape les entrées.
 
     Parameters
     ----------
     w : array
         Vecteur poids.
-    x : array
+    X : array
         Données.
     y : array
         Labels.
@@ -19,22 +19,22 @@ def reshape(w, x, y):
     ----------
     w : array de taille (d, 1)
         Vecteur poids.
-    x : array de taille (n, d)
+    X : array de taille (n, d)
         Données.
     y : array de taille (n, 1)
         Labels.
     """
-    return w.reshape(-1, 1), x.reshape(y.shape[0], w.shape[0]), y.reshape(-1, 1)
+    return w.reshape(-1, 1), X.reshape(y.shape[0], w.shape[0]), y.reshape(-1, 1)
 
 
-def mse(w, x, y):
+def mse(w, X, y):
     """Renvoie le coût des moindres carrés pour une fonction linéaire.
 
     Parameters
     ----------
     w : array de taille (d, 1)
         Vecteur poids.
-    x : array de taille (n, d)
+    X : array de taille (n, d)
         Données.
     y : array de taille (n, 1)
         Labels.
@@ -44,17 +44,18 @@ def mse(w, x, y):
     z : array (n, 1)
         Coût des moindres carrés.
     """
-    return (np.dot(x, w) - y) ** 2
+    w, X, y = reshape(w, X, y)
+    return (np.dot(X, w) - y) ** 2
 
 
-def mse_grad(w, x, y):
+def mse_grad(w, X, y):
     """Renvoie le gradient des moindres carrés sous forme d'une matrice (n, d).
 
     Parameters
     ----------
     w : array de taille (d, 1)
         Vecteur poids.
-    x : array de taille (n, d)
+    X : array de taille (n, d)
         Données.
     y : array de taille (n, 1)
         Labels.
@@ -64,17 +65,18 @@ def mse_grad(w, x, y):
     z : array (n, 1)
         Gradient des moindres carrés.
     """
-    return 2 * x * (np.dot(x, w) - y)
+    w, X, y = reshape(w, X, y)
+    return 2 * X * (np.dot(X, w) - y)
 
 
-def reglog(w, x, y):
+def reglog(w, X, y):
     """Renvoie le coût de la régression logistique.
 
     Parameters
     ----------
     w : array de taille (d, 1)
         Vecteur poids.
-    x : array de taille (n, d)
+    X : array de taille (n, d)
         Données.
     y : array de taille (n, 1)
         Labels.
@@ -84,17 +86,18 @@ def reglog(w, x, y):
     z : array (n, 1)
         Coût de la régression logistique..
     """
-    return np.log(1 + np.exp(-y * np.dot(x, w)))
+    w, X, y = reshape(w, X, y)
+    return np.log(1 + np.exp(-y * np.dot(X, w)))
 
 
-def reglog_grad(w, x, y):
+def reglog_grad(w, X, y):
     """Renvoie le gradient de la régression logistique sous forme d'une matrice
 
     Parameters
     ----------
     w : array de taille (d, 1)
         Vecteur poids.
-    x : array de taille (n, d)
+    X : array de taille (n, d)
         Données.
     y : array de taille (n, 1)
         Labels.
@@ -104,7 +107,8 @@ def reglog_grad(w, x, y):
     z : array (n, 1)
         Gradient de la régression logistique.
     """
-    return (-y * x) / (1 + np.exp(y * np.dot(x, w)))
+    w, X, y = reshape(w, X, y)
+    return (-y * X) / (1 + np.exp(y * np.dot(X, w)))
 
 
 def check_fonctions():
@@ -123,12 +127,12 @@ def grad_check(f, f_grad, N=100):
     pass
 
 
-def descente_gradient(x, y, f_loss, f_grad, eps, iter):
+def descente_gradient(X, y, f_loss, f_grad, eps, iter):
     """Performe une descente de gradient.
 
     Parameters
     ----------
-    x : array de taille (n, d)
+    X : array de taille (n, d)
         Données.
     y : array de taille (n, 1)
         Labels.
@@ -150,14 +154,14 @@ def descente_gradient(x, y, f_loss, f_grad, eps, iter):
     losses : array(self.max_iter)
         Historique des coûts au fur et à mesure de la descente de gradient.
     """
-    w = np.random.randn(x.shape[1], 1)
+    w = np.random.randn(X.shape[1], 1)
     weights = [w]  # liste des w
     losses = []  # valeurs de la fonction de coût
     for _ in range(iter):
-        w -= eps * f_grad(w, x, y).mean()
+        w = w - eps * f_grad(w, X, y).mean(0).reshape(-1, 1)
         # if np.allclose(w, weights[i], rtol=1e-4):
         #     break  # convergence du gradient
-        losses.append(f_loss(w, x, y).mean())
+        losses.append(f_loss(w, X, y).mean())
         weights.append(w)
     return w, np.array(weights), np.array(losses)
 
