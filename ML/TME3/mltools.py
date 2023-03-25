@@ -40,7 +40,11 @@ def plot_frontiere(data, f, step=20):
     """
     grid, x, y = make_grid(data=data, step=step)
     plt.contourf(
-        x, y, f(grid).reshape(x.shape), colors=("gray", "blue"), levels=[-1, 0, 1]
+        x,
+        y,
+        f(grid).reshape(x.shape),
+        colors=("lightgray", "skyblue"),
+        levels=[-1, 0, 1],
     )
 
 
