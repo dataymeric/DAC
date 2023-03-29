@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import cm
 from mltools import plot_data, plot_frontiere, make_grid, gen_arti
+from tqdm import tqdm
 
 
 def reshape(w, X, y):
@@ -129,7 +130,7 @@ def proj_poly(X):
     n, d = X.shape
     proj = np.ones((n, 1 + d + d * (d + 1) // 2))
     for i in range(d):
-        proj[:, i + 1] = X[:, i]  
+        proj[:, i + 1] = X[:, i]
         # Boucle imbriquée pour ajouter les colonnes quadratiques x_i^2 et x_i*x_j
         for j in range(i, d):
             col = 1 + d + i * d + j - i * (i + 1) // 2
@@ -143,10 +144,10 @@ def proj_poly(X):
 def proj_gauss(X, base, sigma):
     """Projection gaussienne."""
     n, d = X.shape
-    m, d = base.shape
-    proj = np.zeros((n, m))
+    b, d = base.shape
+    proj = np.zeros((n, b))
     for i in range(n):
-        for j in range(m):
+        for j in range(b):
             proj[i, j] = np.exp(
                 -np.linalg.norm(X[i, :] - base[j, :]) ** 2 / (2 * sigma**2)
             )
@@ -161,6 +162,8 @@ class Lineaire(object):
         max_iter=100,
         eps=0.01,
         projection=None,
+        base=None,
+        sigma=1,
     ):
         self.max_iter = max_iter
         self.eps = eps
@@ -168,6 +171,15 @@ class Lineaire(object):
         self.loss = loss
         self.loss_g = loss_g
         self.projection = projection
+        self.base = base
+        self.sigma = sigma
+
+    def proj(self, X):
+        """Renvoie la projection des données."""
+        if self.projection.__name__ in ["proj_biais", "proj_poly"]:
+            return self.projection(X)
+        elif self.projection.__name__ == "proj_gauss":
+            return self.projection(X, self.base, self.sigma)
 
     def fit(self, X, y, batch_size=50, mode=None, **kwargs):
         """Performe une descente de gradient.
@@ -192,24 +204,33 @@ class Lineaire(object):
             Historique des vecteurs poids au fur et à mesure de la descente de gradient.
         losses : array(self.max_iter)
             Historique des coûts au fur et à mesure de la descente de gradient.
+        scores : array(self.max_iter)
+            Historique des scores (en apprentissage) au fur et à mesure de la descente
+            de gradient.
         """
         X_score = X.copy()
+
         if self.projection is not None:
-            X = self.projection(X, **kwargs)
+            X = self.proj(X)
+
         self.w = np.ones((X.shape[1], 1))
         weights = [self.w]
-        losses = [self.loss(self.w, X, y).mean()]
+        losses = [self.loss(self.w, X, y, **kwargs).mean()]
         scores = [self.score(X_score, y)]
 
-        for _ in range(self.max_iter):
+        for _ in tqdm(range(self.max_iter)):
             if mode is None:
-                grad = self.loss_g(self.w, X, y).mean(0).reshape(-1, 1)
+                grad = self.loss_g(self.w, X, y, **kwargs).mean(0).reshape(-1, 1)
                 self.w = self.w - self.eps * grad
             elif mode == "stochastique":
                 np.random.shuffle(X)
                 np.random.shuffle(y)
                 for rand in range(X.shape[0]):
-                    grad = self.loss_g(self.w, X[rand], y[rand]).mean(0).reshape(-1, 1)
+                    grad = (
+                        self.loss_g(self.w, X[rand], y[rand], **kwargs)
+                        .mean(0)
+                        .reshape(-1, 1)
+                    )
                     self.w = self.w - self.eps * grad
             elif mode == "minibatch":
                 np.random.shuffle(X)
@@ -217,7 +238,10 @@ class Lineaire(object):
                 for i in range(0, X.shape[0], batch_size):
                     grad = (
                         self.loss_g(
-                            self.w, X[i : i + batch_size], y[i : i + batch_size]
+                            self.w,
+                            X[i : i + batch_size],
+                            y[i : i + batch_size],
+                            **kwargs
                         )
                         .mean(0)
                         .reshape(-1, 1)
@@ -228,15 +252,17 @@ class Lineaire(object):
                     "mode must be one of {None, 'stochastique' or "
                     "'minibatch'}, got '%s' instead" % mode
                 )
+
             weights.append(self.w)
-            losses.append(self.loss(self.w, X, y).mean())
+            losses.append(self.loss(self.w, X, y, **kwargs).mean())
             scores.append(self.score(X_score, y))
+
         return self.w, np.array(weights), np.array(losses), np.array(scores)
 
     def predict(self, X):
         """Infére le label des données."""
         if self.projection is not None:
-            X = self.projection(X)
+            X = self.proj(X)
         return np.sign(np.dot(X, self.w))
 
     def score(self, X, y):
