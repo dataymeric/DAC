@@ -1,0 +1,14 @@
+sommet(1..10).
+relie(1,2).
+relie(2,3).
+relie(3,4).
+relie(4,5).
+relie(6,8).
+relie(6,9).
+relie(7,9).
+relie(8,10).
+relie(1,6).
+relie(2,7).
+relie(3,8).
+relie(4,9).
+relie(5,10).

@@ -165,3 +165,5 @@ merge join quand aucun rapport entre 2 tables (2 tables indépendantes). en gén
 les lignes sont triées, et qu'il n'y a pas d'opération de tri à effectuer.
 sort merge utile si la condition de jointure n'est pas une égalité (je savais pas qu'on peut faire ça mdr)
 
+
+
