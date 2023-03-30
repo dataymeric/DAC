@@ -10,8 +10,12 @@ n(1..taille*taille).
 region(X1, Y1, X2, Y2) :- pos(X1), pos(X2), pos(Y1), pos(Y2),  (X1 / taille) == (X2 / taille), (Y1 / taille) == (Y2 / taille).
 
 % contraintes
-:- case(X1, Y, N), case(X2, Y, N), X1 != X2. % il ne peut y avoir le même chiffre sur une même ligne.
-:- case(X, Y1, N), case(X, Y2, N), Y1 != Y2. % il ne peut y avoir le même chiffre sur une même colonne.
+% il ne peut y avoir le même chiffre sur une même ligne.
+:- case(X1, Y, N), case(X2, Y, N), X1 != X2.
+
+% il ne peut y avoir le même chiffre sur une même colonne.
+:- case(X, Y1, N), case(X, Y2, N), Y1 != Y2.
+
 % il ne peut y avoir le même chiffre dans une région
 :- case(X1, Y1, N), case(X2, Y2, N), region(X1, Y1, X2, Y2), X1 != X2, Y1 != Y2.
 
