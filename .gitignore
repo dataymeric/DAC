@@ -1,6 +1,8 @@
 *.zip
 
 RITAL/TAL/data/
+RITAL/RI/TME2/index_3docs
+RITAL/RI/TME2/terrier_cord19
 
 .obsidian
 
