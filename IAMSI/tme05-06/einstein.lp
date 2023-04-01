@@ -1,6 +1,6 @@
 % Casse-tête logique (exercice 5)
 
-% domaines
+% Domaines
 maisons(1..5). % (1 tout à gauche, 5 tout à droite)
 couleurs(rouge;verte;blanche;jaune;bleue).
 nationalites(britannique;suedois;danois;norvegien;allemand).
@@ -8,23 +8,25 @@ animaux(chien;chats;chevaux;poissons;oiseaux).
 boissons(cafe;the;lait;biere;eau).
 cigarettes(pall_mall;dunhill;blend;bluemaster;princess).
 
-%
+% Génération
+% Note : il y a une équivalence dans les contraintes.
+% Couleur de la maison.
 1 { couleur(Maison, Couleur) : couleurs(Couleur) } 1 :- maisons(Maison).
 1 { couleur(Maison, Couleur) : maisons(Maison) } 1 :- couleurs(Couleur).
-
+% Nationalité du propriétaire.
 1 { nationalite(Maison, Nationalite) : nationalites(Nationalite) } 1 :- maisons(Maison).
 1 { nationalite(Maison, Nationalite) : maisons(Maison) } 1 :- nationalites(Nationalite).
-
+% Animal possédé par le propriétaire.
 1 { animal(Maison, Animal) : animaux(Animal) } 1 :- maisons(Maison).
 1 { animal(Maison, Animal) : maisons(Maison) } 1 :- animaux(Animal).
-
+% Boisson préférée du propriétaire.
 1 { boisson(Maison, Boisson) : boissons(Boisson) } 1 :- maisons(Maison).
 1 { boisson(Maison, Boisson) : maisons(Maison) } 1 :- boissons(Boisson).
-
+% Cigarettes préférées du propriétaire.
 1 { fume(Maison, Cigarette) : cigarettes(Cigarette) } 1 :- maisons(Maison).
 1 { fume(Maison, Cigarette) : maisons(Maison) } 1 :- cigarettes(Cigarette).
 
-% Contrainte du voisin (on ne sait pas s'il est à gauche ou à droite)
+% Contrainte du voisin (càd, il est à gauche ou à droite).
 a_cote(P1, P2) :- maisons(P1), maisons(P2), |P1-P2| == 1.
 
 % 1. Le Britannique vit dans la maison rouge.
@@ -77,7 +79,7 @@ a_poissons(Nationalite) :-
     nationalite(Maison, Nationalite), 
     animal(Maison, poissons). 
 
-% Reconstruction :
+% Reconstruction
 maison(Maison, Couleur, Nationalite, Animal, Boisson, Cigarette) :-
     maisons(Maison), 
     couleur(Maison, Couleur), 
@@ -100,4 +102,5 @@ maison(Maison, Couleur, Nationalite, Animal, Boisson, Cigarette) :-
 
 % -- Réponse à la question :
 % a_poissons(allemand)
+
 % L'Allemand est donc celui qui possède les poissons !
