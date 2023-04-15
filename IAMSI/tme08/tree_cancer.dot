@@ -1,0 +1,33 @@
+digraph Tree {
+node [shape=box, style="filled", color="black", fontname="helvetica"] ;
+edge [fontname="helvetica"] ;
+0 [label="worst concave points <= 0.151\nentropy = 1.0\nsamples = 200\nvalue = [100, 100]\nclass = malignant", fillcolor="#ffffff"] ;
+1 [label="worst area <= 869.3\nentropy = 0.65\nsamples = 120\nvalue = [20, 100]\nclass = benign", fillcolor="#61b1ea"] ;
+0 -> 1 [labeldistance=2.5, labelangle=45, headlabel="True"] ;
+2 [label="mean texture <= 21.3\nentropy = 0.32\nsamples = 103\nvalue = [6, 97]\nclass = benign", fillcolor="#45a3e7"] ;
+1 -> 2 ;
+3 [label="radius error <= 0.643\nentropy = 0.097\nsamples = 80\nvalue = [1, 79]\nclass = benign", fillcolor="#3c9ee5"] ;
+2 -> 3 ;
+4 [label="entropy = 0.0\nsamples = 79\nvalue = [0, 79]\nclass = benign", fillcolor="#399de5"] ;
+3 -> 4 ;
+5 [label="entropy = 0.0\nsamples = 1\nvalue = [1, 0]\nclass = malignant", fillcolor="#e58139"] ;
+3 -> 5 ;
+6 [label="worst concave points <= 0.104\nentropy = 0.755\nsamples = 23\nvalue = [5, 18]\nclass = benign", fillcolor="#70b8ec"] ;
+2 -> 6 ;
+7 [label="area error <= 79.825\nentropy = 0.297\nsamples = 19\nvalue = [1, 18]\nclass = benign", fillcolor="#44a2e6"] ;
+6 -> 7 ;
+8 [label="entropy = 0.0\nsamples = 18\nvalue = [0, 18]\nclass = benign", fillcolor="#399de5"] ;
+7 -> 8 ;
+9 [label="entropy = 0.0\nsamples = 1\nvalue = [1, 0]\nclass = malignant", fillcolor="#e58139"] ;
+7 -> 9 ;
+10 [label="entropy = 0.0\nsamples = 4\nvalue = [4, 0]\nclass = malignant", fillcolor="#e58139"] ;
+6 -> 10 ;
+11 [label="worst texture <= 22.14\nentropy = 0.672\nsamples = 17\nvalue = [14, 3]\nclass = malignant", fillcolor="#eb9c63"] ;
+1 -> 11 ;
+12 [label="entropy = 0.0\nsamples = 3\nvalue = [0, 3]\nclass = benign", fillcolor="#399de5"] ;
+11 -> 12 ;
+13 [label="entropy = 0.0\nsamples = 14\nvalue = [14, 0]\nclass = malignant", fillcolor="#e58139"] ;
+11 -> 13 ;
+14 [label="entropy = 0.0\nsamples = 80\nvalue = [80, 0]\nclass = malignant", fillcolor="#e58139"] ;
+0 -> 14 [labeldistance=2.5, labelangle=-45, headlabel="False"] ;
+}
