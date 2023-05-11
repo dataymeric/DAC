@@ -10,10 +10,10 @@ block(1..6).
 location(B) :- block(B).
 location(table).
 
-% Génération: avec 1 poignet %
+% G√©n√©ration: avec 1 poignet %
 {move(BB, LL, T):block(BB),location(LL)}  1 :- time(T), T < lasttime.
 
-% Définition %
+% D√©finition %
 
 % Effet du mouvement d'un bloc %
 on(B, L, T+1) :- block(B), time(T), location(L), move(B, L, T), T < lasttime.
@@ -25,16 +25,16 @@ on(B, L, T+1) :- block(B), time(T), location(L), on(B, L, T), not -on(B, L, T+1)
 -on(B, L1, T+1) :- block(B), time(T), location(L), location(L1), on(B, L, T+1), L != L1.
 
 % Contraintes %
-% Deux blocs ne peuvent pas se trouver au-dessus d'un même bloc %
+% Deux blocs ne peuvent pas se trouver au-dessus d'un m√©me bloc %
 :- 2 {on(BB, B, T) : block(BB)}, block(B), block(BB), time(T).
 
-% Un bloc ne peut être mu si quelque chose se trouve au-dessus %
+% Un bloc ne peut √©tre mu si quelque chose se trouve au-dessus %
 :- move(B, L, T), on(B1, B, T),block(B), block(B1), location(L), time(T).
 
-% Un bloc ne peut être mu sur un bloc occupé — contrainte ajoutée %
+% Un bloc ne peut √©tre mu sur un bloc occup√© √© contrainte ajout√©e %
 :- move(B, B2, T), on(B1, B2, T),block(B), block(B1), block(B2), time(T).
 
-% Un bloc ne peut pas être mu sur un bloc qui est en mouvement %
+% Un bloc ne peut pas √©tre mu sur un bloc qui est en mouvement %
 :- move(B, B1, T), move(B1, L, T), block(B), block(B1), location(L), time(T).
 
 % Etat initial %

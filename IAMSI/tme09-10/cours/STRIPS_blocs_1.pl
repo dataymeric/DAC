@@ -1,4 +1,4 @@
-/* STRIPS programmé par Jean-Gabriel Ganascia */
+/* STRIPS programmÃ© par Jean-Gabriel Ganascia */
 
 
 test(Plan):- etat_initial(I), etat_final(F), resoudre(I, [F], Plan).
@@ -10,11 +10,11 @@ resoudre(Etat, [operateur(Op)|Buts], [Op|Plan]) :- !, appliquer_operateur(Etat, 
 resoudre(Etat, [But|Buts], Plan) :- member(But, Etat), !,marquer(4, Etat, Buts, Plan), resoudre(Etat, Buts, Plan).
 resoudre(Etat, [But|Buts], Plan) :- trouver_operateur(Etat, But, Op, P), intersection(P, Buts, []), operateur(Op, Preconds, _,_), marquer(5, Etat, [Preconds,operateur(Op),But|Buts], Plan), resoudre(Etat, [Preconds,operateur(Op),But|Buts], Plan).
 
-marquer(N, E, B, P):- write('Appel prédicat résoudre '), write(N), nl, write('\tEtat: '), write(E), write('; Plan: '), write(P), nl, write('\tButs: '), write(B), nl.
+marquer(N, E, B, P):- write('Appel prÃ©dicat rÃ©soudre '), write(N), nl, write('\tEtat: '), write(E), write('; Plan: '), write(P), nl, write('\tButs: '), write(B), nl.
 trouver_operateur(Etat, But, Op, []) :- clause(operateur(Op, Preconds, _, AListe),Q), member(But, AListe), soustraction(Preconds, Etat,[]), call(Q), term_variables(Op,[]).
 trouver_operateur(Etat, But, Op, [T|S]) :- clause(operateur(Op, Preconds, _, AListe),Q), member(But, AListe), soustraction(Preconds, Etat,[T|S]), call(Q), term_variables(Op,[]).
 
-appliquer_operateur(Etat, Op, NEtat) :- operateur(Op, _, Dliste, Aliste), subtract(Etat, Dliste, DEtat), union(DEtat, Aliste, NEtat), write('Application opérateur '), write(Op), write('\n\tNouvel état: '), write(NEtat), nl.
+appliquer_operateur(Etat, Op, NEtat) :- operateur(Op, _, Dliste, Aliste), subtract(Etat, Dliste, DEtat), union(DEtat, Aliste, NEtat), write('Application opÃ©rateur '), write(Op), write('\n\tNouvel Ã©tat: '), write(NEtat), nl.
 
 soustraction([], _, []).
 soustraction([X|L], D, LL) :- member(X, D), soustraction(L, D, LL).
