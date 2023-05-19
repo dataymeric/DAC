@@ -7,7 +7,7 @@ aeroport(teg;cdg;bar).
 
 %%% Programmation des actions
 %%% charger
-{ charger(X,Y,Z,T) : cargaison(X), avion(Y), aeroport(Z) } 1 :- time(T), T < last_time.
+% { charger(X,Y,Z,T) : cargaison(X), avion(Y), aeroport(Z) } 1 :- time(T), T < last_time.
 
 % précond : il n'est pas permis de charger un avion 
 :-  charger(X,Y,Z,T),
@@ -24,7 +24,7 @@ dans(X,Y,T+1) :- charger(X,Y,Z,T).
 -situe(X,Z,T+1) :- charger(X,Y,Z,T).
 
 %% voler
-{ voler(X,Y,Z,T) : avion(X), aeroport(Y), aeroport(Z) } 1 :- time(T), T < last_time.
+% { voler(X,Y,Z,T) : avion(X), aeroport(Y), aeroport(Z) } 1 :- time(T), T < last_time.
 
 % precond : il  n'est pas permis de voler si l'avion ne se situe pas à l'aéroport de départ
 :- voler(X,Y,Z,T), not situe(X,Y,T).
@@ -36,7 +36,7 @@ situe(X,Z,T+1) :- voler(X,Y,Z,T).
 -situe(X,Y,T+1) :- voler(X,Y,Z,T).
 
 %% decharger
-{ decharger(X,Y,Z,T) : cargaison(X), avion(Y), aeroport(Z) } 1 :- time(T), T < last_time.
+% { decharger(X,Y,Z,T) : cargaison(X), avion(Y), aeroport(Z) } 1 :- time(T), T < last_time.
 
 % precond : il n'est pas permis de décharger un avion si la cargaison n'est pas dans l'avion et que l'avion ne se situe pas à l'aéroport.
 :- decharger(X,Y,Z,T), not dans(X,Y,T), not situe(Y,Z,T).
@@ -54,6 +54,13 @@ vide(X,T+1) :- vide(X,T), not -vide(X,T+1), T < last_time.
 dans(X,Y,T+1) :- dans(X,Y,T), not -dans(X,Y,T+1), T < last_time.
 
 situe(X,Y,T+1) :- situe(X,Y,T), not -situe(X,Y,T+1), T < last_time.
+
+% :- situe(X, Y, T), (X, Z, T), avion(X), aeroport(Y), aeroport(Z), time(T), X != Y.
+% :- dans(X, Y, T), dans(Z, Y, T), cargaison(X), cargaison(Z), avion(Y), time(T), X != Z.
+
+{ charger(X, Y, Z, T) : cargaison(X), avion(Y), aeroport(Z) ;
+  voler(X, Y, Z, T) : avion(X), aeroport(Y), aeroport(Z) ; 
+  decharger(X, Y, Z, T) : cargaison(X), avion(Y), aeroport(Z)} =  1 :- time(T), T < last_time.
 
 %%% Etat initial
 vide(a1,0).
