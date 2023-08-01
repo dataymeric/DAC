@@ -1,0 +1,40 @@
+del(.cells[] | select(has("outputs")) | select(.outputs[].name == "stderr")) | (.cells[] | select(has("execution_count")) | .execution_count) = null | .cells[].metadata = {} | .metadata = {}
+
+*.zip
+*.old
+
+### Python ###
+__pycache__/
+
+# JupyterNotebooks
+.ipynb_checkpoints  
+*/.ipynb_checkpoints/*
+
+# IPython
+profile_default/
+ipython_config.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# S1/BIMA
+S1/BIMA/TME8/Base
+S1/BIMA/TME8/save
+
+# S1/MAPSI
+S1/MAPSI/tme4/params*
+
+# S2/IAMSI
+S2/IAMSI/tme07/out
+S2/SatPlan2006*
+
+# S2/RITAL
+S2/RITAL/TAL/data/
+S2/RITAL/RI/TME2/index_3docs
+S2/RITAL/RI/TME2/terrier_cord19

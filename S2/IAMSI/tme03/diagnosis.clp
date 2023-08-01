@@ -1,5 +1,5 @@
 ;;;; IAMSI - TME3
-;;;; Aymeric DELEFOSSE
+
 ; Note : (initial-fact) a été retiré depuis CLIPS 6.40
 (deffacts initialisation
     (taches rouges)
