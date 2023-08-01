@@ -1,0 +1,21 @@
+; Time 0.09
+; ParsingTime    0.00
+; MakeSpan 18
+0: (UNSTACK A C) [1]
+1: (PUT-DOWN A) [1]
+2: (UNSTACK B D) [1]
+3: (PUT-DOWN B) [1]
+4: (UNSTACK C E) [1]
+5: (PUT-DOWN C) [1]
+6: (UNSTACK D F) [1]
+7: (PUT-DOWN D) [1]
+8: (PICK-UP E) [1]
+9: (STACK E F) [1]
+10: (PICK-UP D) [1]
+11: (STACK D E) [1]
+12: (PICK-UP C) [1]
+13: (STACK C D) [1]
+14: (PICK-UP B) [1]
+15: (STACK B C) [1]
+16: (PICK-UP A) [1]
+17: (STACK A B) [1]
