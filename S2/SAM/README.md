@@ -1,0 +1,3 @@
+# Stockage et Accès aux Mégadonnées
+
+[SAM](https://dac.lip6.fr/master/sam/) covers distributed database management system (DBMS) architectures. It includes topics such as storage and indexing of distributed data, data replication, and replica consistency. Additionally, it addresses distributed transactions and distributed validation protocols. The course also introduces principles of parallel databases, parallel joins, and parallel query evaluation using MapReduce.

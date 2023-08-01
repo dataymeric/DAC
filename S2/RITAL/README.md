@@ -1,0 +1,3 @@
+# Recherche d’Information et Traitement Automatique de la Langue
+
+[RITAL](https://dac.lip6.fr/master/enseignement/rital/) presents the major challenges posed in text processing, particularly focusing on information retrieval (RI) and natural language processing (TAL). Its objective is to introduce and work with the main models for analyzing, synthesizing, exploiting/interrogating, and generating documents.

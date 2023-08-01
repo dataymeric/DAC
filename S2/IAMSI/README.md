@@ -1,0 +1,3 @@
+# Intelligence Artificielle et Manipulation Symbolique de l’Information
+
+[IAMSI](https://dac.lip6.fr/master/enseignement/iamsi/) covers AI techniques, symbolic information manipulation, classical AI concepts (knowledge-based systems, symbolic learning, rule association), recent advancements (SAT algorithms, Answer Set Programming, non-monotonicity, stable model), and various information utilization approaches. Examples include AI techniques for game programming (Minmax algorithm with alpha-beta pruning) and task planning with formalisms like situation calculus, linear planning (STRIPS), and non-linear planning.

@@ -1,0 +1,3 @@
+# Modèles et Algorithmes Probabilistes et Statistiques pour l’Informatique
+
+[MAPSI](https://dac.lip6.fr/master/enseignement/mapsi/) aims to present the fundamental elements of probability and statistics for computer science. Beyond the simple objective of explaining classical concepts such as random variables, moments, or major families of distributions, the course's purpose is to demonstrate the advanced use of these notions in various computer science domains, such as bioinformatics, artificial intelligence, and imaging. The studied techniques (Markov chains, etc.) will be illustrated through applications from these different domains.

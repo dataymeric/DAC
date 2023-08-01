@@ -1,3 +1,3 @@
 # Machine Learning
 
-A partir du TME2, chaque TME est organisé de telle manière que les fonctions sont implémentées dans des fichiers `tme.py`. Des courts rapports se présentent sous la forme de notebooks Jupyter `tme.ipynb`, afin de montrer l'utilisation des modules et d'expérimenter.
+[ML](https://dac.lip6.fr/master/ml/) introduces the major themes of statistical learning and its fundamental concepts with a strong emphasis on applications. It presents common algorithms for density estimation, regression, supervised and unsupervised classification. It also covers models and algorithms of modern statistical learning and neural networks, with an introduction to the corresponding mathematical tools.
