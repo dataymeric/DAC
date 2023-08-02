@@ -1,0 +1,12 @@
+[submodule "S2/ML/Projet"]
+	path = S2/ML/Projet
+	url = git@github.com:dataymeric/NeuralNetworksDIY
+[submodule "S2/RI/Projet"]
+	path = S2/RITAL/RI/Projet
+	url = git@github.com:CharlesAttend/Information-Retrieval-Project
+[submodule "S2/TAL/Projet"]
+	path = S2/RITAL/TAL/Projet
+	url = git@github.com:CharlesAttend/RITAL-Projet1
+[submodule "PLDAC"]
+	path = S2/PLDAC
+	url = git@github.com:valentinbencheci/PLDAC
